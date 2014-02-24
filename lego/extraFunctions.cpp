@@ -1,6 +1,3 @@
-#ifndef UTIL_H
-#define UTIL_H
-
 #include <iostream>
 #include <opencv.hpp>
 #include <highgui/highgui.hpp>
@@ -8,6 +5,8 @@
 #include "util.h"
 using namespace std;
 using namespace cv;
+
+
 
 struct harrisLine
 {
@@ -362,5 +361,3 @@ void drawGrid2(harrisLine finalHLines, double total, double width, double yScale
  }
 
 }
-
-#endif // UTIL_H

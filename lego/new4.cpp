@@ -2,7 +2,7 @@
 #include <opencv.hpp>
 #include <highgui/highgui.hpp>
 #include <math.h>
-#include "util.h"
+#include "extraFunctions.h"
 using namespace std;
 using namespace cv;
 
@@ -110,14 +110,15 @@ bool pointIsAcceptable(double x, double y, vector<Point> pointVec){
 
 
 void drawGrid3(int viewArray[20][20], harrisLine finalHLines, double total, double width, Mat image){
-   for(int i = -10; i < 10; i++){
-    for(int j = -10; j < 10; j++){
-          viewArray[i+10][j+10] = 0;
+  int gridSize = 10;
+   for(int i = -gridSize; i < gridSize; i++){
+    for(int j = -gridSize; j < gridSize; j++){
+          viewArray[i+gridSize][j+gridSize] = 0;
          // cout << viewArray[i][j] << endl;
     }
   }
-   for(int i = -10; i < 10; i++){
-      for(int j = -10; j < 0; j++){
+   for(int i = -gridSize; i < gridSize; i++){
+      for(int j = -gridSize; j < gridSize; j++){
         double red = 0.0, blue = 0.0, green = 0.0, x = finalHLines.p1.x + width*i, y = finalHLines.p1.y+j*total;
         if(x> 0 && y > 0 && x+width < image.cols && y+total < image.rows){
           Mat section  = image(Rect(x,y, width, total));
@@ -296,65 +297,7 @@ double cornerHarris(int viewArray[20][20], Mat src, Mat image, vector<Point> acc
 	return total;
 }
  
- void HoughStuff(Mat image, Mat input, vector<Point> acceptablePoint){
-     Mat sobelVertical = (Mat_<double>(3, 3) << 
-                -1, 0, 1,
-                -2, 0, 2,
-                -1, 0, 1);
 
-      Mat sobelHorizontal = (Mat_<double>(3, 3) << 
-                -1, -2, -1,
-                0, 0, 0,
-                1, 2, 1);
-
-      Mat dbydx = conv(input, sobelVertical);
-
-      Mat dbydy = conv(input, sobelHorizontal);
-
-      Mat magnitude = getMagnitude(dbydx, dbydy);
-      magnitude = normalize(magnitude);
-      threshold(magnitude, 15);
-        Mat gradient = getGradient(dbydx, dbydy);
-      //  imshow("thresh", magnitude);
-        vector<Vec4i> lines;
-        vector<Vec4i> lines2;
-        vector<double> vertLines;
-        vector<double> vertLinesClone;
-        
-      HoughLinesP(magnitude, lines, 1, CV_PI/180, 20, 50, 30 );
-      
-      
-      //HoughLines(magnitude, lines, 1, CV_PI/180, 100, 10, 10 );
-        for( size_t i = 0; i < lines.size(); i++ )
-      {
-          Vec4i l = lines[i];
-        
-          double x1 = l[0];double x2 = l[2]; double y1 = l[1]; double y2 = l[3];
-          double angle =  atan2(y2 - y1, x2 - x1) * 180 / CV_PI;
-          //double n1 = sqrt(x1*x1+y1*y1), n2 = sqrt(x2*x2+y2*y2);
-        //double angle = acos((x1*x2+y1*y2)/(n1*n2)) * 180 / CV_PI;
-          angle = abs(angle);
-        //  cout << angle << endl;
-          if(angle > 85 && angle < 95 || angle < 5){
-          double distance = sqrt((x1-y1)*(x1-y1)+(x2-y2)*(x2-y2));
-          // cout << distance << endl;
-           if(distance < 100){
-              line( image, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0,0,0), 1, CV_AA);
-           }
-            vertLines.push_back(distance);
-            Point p1;
-            p1.x =x1;
-            p1.y = y1;
-            Point p2;
-            p2.x = x2;
-            p2.y = y2;
-            acceptablePoint.push_back(p1);
-          acceptablePoint.push_back(p2);
-            
-          } 
-      }
-      vertLinesClone = vertLines;
-  }
 
 
 int main () {
@@ -371,8 +314,13 @@ int main () {
   	}
 	//UNUSED HOUGH CODE
 	/**/
+
     vector<Point> acceptablePoint;
-    HoughStuff(image, input, acceptablePoint);
+   // HoughStuff(image, input, acceptablePoint);
+
+
+  initialiseTestArray
+
 
 	 int viewArray[20][20];
    harris = cornerHarris(viewArray, harris, image, acceptablePoint);
