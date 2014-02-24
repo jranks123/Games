@@ -1,0 +1,527 @@
+#include <iostream>
+#include <opencv.hpp>
+#include <highgui/highgui.hpp>
+#include <math.h>
+using namespace std;
+using namespace cv;
+
+struct harrisLine
+{
+	Point p1, p2;
+	double distance;
+};
+
+
+//IDEA : DRAW FROM BRIGHTEST HOUGH POINT
+
+//IDEA - DO CLUSTERING
+vector<harrisLine> clusterLines(vector<harrisLine> lines){
+  bool converged = true;
+  do{
+    int thresh = 20;
+    converged = true;
+    //cout << "here" << endl;
+   // vector<harrisLine> newHarris;
+    for(size_t i = 0; i < lines.size(); i++){
+    bool merged = false;
+      for(size_t k = i+1; k < lines.size(); k++){
+        double p1x = abs(lines[i].p1.x - lines[k].p1.x);
+        double p1y = abs(lines[i].p1.y - lines[k].p1.y);
+        double p2x = abs(lines[i].p2.x - lines[k].p2.x);
+        double p2y = abs(lines[i].p2.y - lines[k].p2.y);
+
+        if((p1x < thresh) && (p1y < thresh) && (p2x< thresh) &&(p2y< thresh) && (p1x > 0) && (p1y > 0) && (p2x > 0) &&(p2y > 0)){
+          lines[i].p1.x = (lines[i].p1.x + lines[k].p1.x)/2;
+          lines[i].p1.y = (lines[i].p1.y + lines[k].p1.y)/2;
+          lines[i].p2.x = (lines[i].p2.x + lines[k].p2.x)/2;
+          lines[i].p2.y = (lines[i].p2.y + lines[k].p2.y)/2;
+          lines[i].distance = (lines[i].distance+lines[k].distance)/2;
+          lines[k].p1.x = (lines[i].p1.x + lines[k].p1.x)/2;
+          lines[k].p1.y = (lines[i].p1.y + lines[k].p1.y)/2;
+          lines[k].p2.x = (lines[i].p2.x + lines[k].p2.x)/2;
+          lines[k].p2.y = (lines[i].p2.y + lines[k].p2.y)/2;
+          lines[k].distance = (lines[i].distance+lines[k].distance)/2;
+          converged = false;
+          //cout << "made it" << endl;
+        }
+      }
+    }
+  }while(converged == false);
+  return lines;
+
+}
+
+
+bool pointIsAcceptable(double x, double y, vector<Point> pointVec){
+	bool accept = false;
+	for(size_t i = 0; i < pointVec.size(); i++){
+		if (abs(x - pointVec[i].x) < 10 && abs(y - pointVec[i].y) < 10) accept = true;
+	}
+	return accept;
+}
+
+void drawGrid2(vector<harrisLine> finalHLines, double total, double width, double yScale, Mat image){
+   for(int i = -10; i < 10; i++){
+
+      Point p(finalHLines[0].p1.x + width*i, finalHLines[0].p1.y+yScale*total);
+      Point q(finalHLines[0].p2.x + width*i, finalHLines[0].p2.y+yScale*total);
+      Point r(finalHLines[0].p1.x + width+width*i, finalHLines[0].p1.y+yScale*total);
+      Point s(finalHLines[0].p2.x + width+width*i, finalHLines[0].p2.y+yScale*total);
+      line( image, s, r, Scalar(0,0,0), 3, CV_AA); 
+      line( image, p, q, Scalar(0,0,0), 3, CV_AA);
+      line( image, p, r, Scalar(0,0,0), 3, CV_AA);
+      line( image, q, s, Scalar(0,0,0), 3, CV_AA);
+ }
+
+}
+
+double cornerHarris( Mat src, Mat image, vector<Point> acceptablePoint)
+{
+	
+	int thresh = 20;
+	//int max_thresh = 1000;
+	Mat dst, dst_norm, dst_norm_scaled;
+	dst = Mat::zeros( src.size(), CV_32FC1 );
+
+	/// Detector parameters
+	int blockSize = 3;
+	int apertureSize = 31;
+	double k = 0.001;
+
+
+
+	/*int thresh = 100;// 100 or 150	
+	int blockSize = 7;
+	int apertureSize = 31;
+	double k = 0.03;*/
+
+
+	/// Detecting corners
+	cornerHarris( src, dst, blockSize, apertureSize, k, BORDER_DEFAULT );
+
+	/// Normalizing and initialising
+	normalize( dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat() );
+	convertScaleAbs( dst_norm, dst_norm_scaled );
+  vector<Point> harrisPoints;
+  vector<double> distances;
+  vector<double>initialDistances;
+  vector<harrisLine> hLines;
+  Point topLeft(1000, 1000);
+
+
+  //calculate initial harris corners  
+  int count = 0;
+  for( int j = 0; j < dst_norm.rows ; j++ )
+   { for( int i = 0; i < dst_norm.cols; i++ )
+        {
+  	if( (int) dst_norm.at<float>(j,i) > thresh )
+  	  {
+  	  harrisPoints.push_back(Point(i,j));
+  	    count ++;
+  	   circle( dst_norm_scaled, Point( i, j ), 5,  Scalar(0), 2, 8, 0 );
+  	  }
+        }
+   }
+
+   //Make pairs of corners that are vertically alligned and are not too close or too
+   //far apart to be considered edges
+	 for(size_t i = 0; i < harrisPoints.size(); i++){
+	 	for(size_t k = i+1; k < harrisPoints.size(); k++){
+	 		double x1 = harrisPoints[i].x, x2 = harrisPoints[k].x, y1 = harrisPoints[i].y, y2 = harrisPoints[k].y;
+	 		if(abs(x1 - x2) <2 && abs(y1 -y2) > 50){
+	 			if(pointIsAcceptable(x1,y1,acceptablePoint)&& pointIsAcceptable(x2,y2, acceptablePoint)){
+		 		    double distance = sqrt(((x1-x2)*(x1-x2))+((y1-y2)*(y1-y2)));
+  		 			initialDistances.push_back(distance);
+  		 			harrisLine h;
+  		 			h.p1 = Point(x1, y1);
+  		 			h.p2 = Point(x2,y2);
+  		 			h.distance = distance;
+  		 			hLines.push_back(h);
+		 		}
+	 		}
+	 	}
+	 }
+
+
+            //line( image, Point(x1, y1), Point(x2, y2), Scalar(0,0,255), 3, CV_AA);
+          /*if(x1 < topLeft.x && y1 < topLeft.y){
+            topLeft.x=x1;
+            topLeft.y =y1;
+          }
+          if(x2 < topLeft.x && y2 < topLeft.y){
+            topLeft.x = x2;
+            topLeft.y = y2;
+           }*/
+
+	//Find the median distance and then rule out any lines that are not close enough
+  //to this distance
+  sort(initialDistances.begin(), initialDistances.end());
+	vector<harrisLine> finalHLines;
+	 double median = initialDistances[initialDistances.size()/2];
+	 double range = median/5;
+	 for(size_t i = 0; i <  hLines.size(); i++){
+	 	if(abs(hLines[i].distance - median) < range){
+	 		harrisLine h;
+		 	h.p1 = Point(hLines[i].p1.x, hLines[i].p1.y);
+		 	h.p2 = Point(hLines[i].p2.x, hLines[i].p2.y);
+		 	h.distance = hLines[i].distance;
+	 	   finalHLines.push_back(h);
+	 	}
+	 }
+
+   finalHLines = clusterLines(finalHLines);
+
+	 
+	 
+	 
+	 
+	 //circle( image, topLeft, 5,  Scalar(0), 2, 8, 0 );
+
+
+   //calculate the average edge length
+	 double total = 0; 
+	 for(size_t i = 0; i < finalHLines.size(); i++){
+        line( image, finalHLines[i].p1, finalHLines[i].p2, Scalar(0,0,255), 3, CV_AA);
+        circle( image, finalHLines[i].p1, 5,  Scalar(0), 2, 8, 0 );
+        circle( image, finalHLines[i].p2, 5,  Scalar(0), 2, 8, 0 );
+       // cout << " Line distance = " << finalHLines[i].distance << endl;
+	 	     total += finalHLines[i].distance;
+	 }
+	 total = total/finalHLines.size();
+	 cout << "TOTAL = " << total << endl;
+   double width = (total/6)*5;
+   for(int i = -10; i < 10; i++){
+      drawGrid2(finalHLines, total, width, i, image);
+    }
+   //line( image, r, s, Scalar(0,0,0), 3, CV_AA);
+	/// Showing the result
+	imshow( "harris ", dst_norm_scaled );
+	return total;
+}
+ 
+ 
+Mat conv (Mat input, Mat kernel) {
+  Mat output = Mat(input.rows, input.cols, CV_32FC1);
+  int kernelRadiusX = ( kernel.size[0] - 1 ) / 2;
+  int kernelRadiusY = ( kernel.size[1] - 1 ) / 2;
+
+  Mat paddedInput;
+  copyMakeBorder(input, paddedInput, 
+                 kernelRadiusX, kernelRadiusX, kernelRadiusY, kernelRadiusY,
+                 BORDER_REPLICATE );
+
+  for ( int i = kernelRadiusX; i < input.rows - kernelRadiusX; i++ ) {
+    for( int j = kernelRadiusY; j < input.cols - kernelRadiusY; j++ ) {
+      float sum = 0.0;
+      for( int m = -kernelRadiusX; m <= kernelRadiusX; m++ ) {
+        for( int n = -kernelRadiusY; n <= kernelRadiusY; n++ ) {
+          int imagex = i + 1 + m;
+          int imagey = j + 1 + n;
+          int kernelx = m + kernelRadiusX;
+          int kernely = n + kernelRadiusY;
+          int imageval = ( int ) paddedInput.at<uchar>( imagex, imagey );
+          double kernalval = kernel.at<double>( kernelx, kernely );
+          sum += imageval * kernalval;
+        }
+      }
+      output.at<float>(i, j) = (float) sum;
+    }
+  }
+
+  return output;
+}
+
+Mat normalize (Mat input) {
+  float min = input.at<float>(0, 0);
+  float max = input.at<float>(0, 0);
+
+  for (int r = 0; r < input.rows; r++) {
+    float* rowPtr = input.ptr<float>(r);
+
+    for (int c = 0; c < input.cols; c++) {
+      if (rowPtr[c] > max) {
+	max = rowPtr[c];
+      }
+      else if (rowPtr[c] < min) {
+	min = rowPtr[c];
+      }
+    }
+  }
+
+  Mat output = Mat(input.rows, input.cols, CV_8UC1);
+  
+  for (int r = 0; r < input.rows; r++) {
+    float* inputRowPtr = input.ptr<float>(r);
+    uchar* outputRowPtr = output.ptr<uchar>(r);
+    
+    for (int c = 0; c < input.cols; c++) {
+      outputRowPtr[c] = (uchar)(((inputRowPtr[c] - min) / (max - min)) * 255);
+    }
+  }
+
+  return output;
+}
+
+Mat getMagnitude (Mat a, Mat b) {
+  Mat output = Mat(a.rows, a.cols, CV_32FC1);
+  
+  for (int r = 0; r < a.rows; r++) {
+    float* aRowPtr = a.ptr<float>(r);
+    float* bRowPtr = b.ptr<float>(r);
+    float* outputRowPtr = output.ptr<float>(r);
+
+    
+    for (int c = 0; c < a.cols; c++) {
+      float p1 = aRowPtr[c];
+      float p2 = bRowPtr[c];
+
+      outputRowPtr[c] = sqrt(p1 * p1 + p2 * p2);
+    }
+  }
+
+  return output;
+}
+
+Mat getGradient (Mat a, Mat b) {
+  Mat output = Mat(a.rows, a.cols, CV_32FC1);
+  
+  for (int r = 0; r < a.rows; r++) {
+    float* aRowPtr = a.ptr<float>(r);
+    float* bRowPtr = b.ptr<float>(r);
+    float* outputRowPtr = output.ptr<float>(r);
+
+    
+    for (int c = 0; c < a.cols; c++) {
+      float p1 = aRowPtr[c];
+      float p2 = bRowPtr[c];
+
+      if (p1 != 0.0) {
+	outputRowPtr[c] = atan(p2 / p1);
+      }
+      else {
+	outputRowPtr[c] = M_PI / 2.0;
+      }
+    }
+  }
+
+  return output;
+}
+
+void threshold (Mat input, int val) {
+  for (int r = 0; r < input.rows; r++) {
+    uchar* rowPtr = input.ptr<uchar>(r);
+    
+    for (int c = 0; c < input.cols; c++) {
+      rowPtr[c] = (rowPtr[c] < val ? 0 : 255);
+    }
+  }
+}
+
+Mat flatten (Mat hs) {
+  int xSize = hs.size.p[0];
+  int ySize = hs.size.p[1];
+  int rSize = hs.size.p[2];
+  
+  Mat output = Mat::zeros(xSize, ySize, CV_32FC1);
+
+  for (int x = 0; x < xSize; x++) {
+    float* outputRowPtr = output.ptr<float>(x);
+    
+    for (int y = 0; y < ySize; y++) {
+      for (int r = 0; r < rSize; r++) {
+  	outputRowPtr[y] += hs.at<float>(x, y, r);
+      }
+    }
+  }
+
+  return output;
+}
+
+  
+  void GaussianBlur(cv::Mat &input, int size, cv::Mat &blurredOutput)
+{
+    // intialise the output using the input
+    blurredOutput.create(input.size(), input.type());
+
+    // create the Gaussian kernel in 1D
+    cv::Mat kX = cv::getGaussianKernel(size, -1);
+    cv::Mat kY = cv::getGaussianKernel(size, -1);
+
+    // make it 2D multiply one by the transpose of the other
+    cv::Mat kernel = kX * kY.t();
+    int kernelRadiusX = ( kernel.size[0] - 1 ) / 2;
+    int kernelRadiusY = ( kernel.size[1] - 1 ) / 2;
+
+    cv::Mat paddedInput;
+    cv::copyMakeBorder( input, paddedInput,
+                        kernelRadiusX, kernelRadiusX, kernelRadiusY, kernelRadiusY,
+                        cv::BORDER_REPLICATE );
+
+    // now we can do the convoltion
+    for ( int i = 0; i < input.rows; i++ )
+    {
+        for ( int j = 0; j < input.cols; j++ )
+        {
+            double sum = 0.0;
+            for ( int m = -kernelRadiusX; m <= kernelRadiusX; m++ )
+            {
+                for ( int n = -kernelRadiusY; n <= kernelRadiusY; n++ )
+                {
+                    // find the correct indices we are using
+                    int imagex = i + 1 + m;
+                    int imagey = j + 1 + n;
+                    int kernelx = m + kernelRadiusX;
+                    int kernely = n + kernelRadiusY;
+
+                    // get the values from the padded image and the kernel
+                    int imageval = ( int ) paddedInput.at<uchar>( imagex, imagey );
+                    double kernalval = kernel.at<double>( kernelx, kernely );
+
+                    // do the multiplication
+                    sum += imageval * kernalval;
+                }
+            }
+            // set the output value as the sum of the convolution
+            blurredOutput.at<uchar>(i, j) = (uchar) sum;
+        }
+    }
+}
+
+int main () {
+	string filename = "pictures/legoside3.jpg";
+  	Mat input = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
+  	Mat harris = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
+  	    GaussianBlur(input, 3, input);
+    Mat image = imread(filename, CV_LOAD_IMAGE_COLOR);
+    Mat linesImage(input.size(), image.type());
+  	if (!input.data) {
+    	cerr << "Cannot open " << filename << endl;
+    	exit(0);
+  	}
+
+	//UNUSED HOUGH CODE
+	Mat sobelVertical = (Mat_<double>(3, 3) << 
+		        -1, 0, 1,
+		        -2, 0, 2,
+		        -1, 0, 1);
+
+	Mat sobelHorizontal = (Mat_<double>(3, 3) << 
+		        -1, -2, -1,
+		        0, 0, 0,
+		        1, 2, 1);
+
+	Mat dbydx = conv(input, sobelVertical);
+
+	Mat dbydy = conv(input, sobelHorizontal);
+
+	Mat magnitude = getMagnitude(dbydx, dbydy);
+	magnitude = normalize(magnitude);
+	threshold(magnitude, 15);
+    Mat gradient = getGradient(dbydx, dbydy);
+  //	imshow("thresh", magnitude);
+  	vector<Vec4i> lines;
+  	vector<Vec4i> lines2;
+  	vector<double> vertLines;
+  	vector<double> vertLinesClone;
+  	vector<Point> acceptablePoint;
+  	
+	HoughLinesP(magnitude, lines, 1, CV_PI/180, 20, 50, 30 );
+	
+	
+	//HoughLines(magnitude, lines, 1, CV_PI/180, 100, 10, 10 );
+  	for( size_t i = 0; i < lines.size(); i++ )
+	{
+  		Vec4i l = lines[i];
+  	
+  		double x1 = l[0];double x2 = l[2]; double y1 = l[1]; double y2 = l[3];
+  		double angle =  atan2(y2 - y1, x2 - x1) * 180 / CV_PI;
+  		//double n1 = sqrt(x1*x1+y1*y1), n2 = sqrt(x2*x2+y2*y2);
+		//double angle = acos((x1*x2+y1*y2)/(n1*n2)) * 180 / CV_PI;
+  		angle = abs(angle);
+  	//	cout << angle << endl;
+  		if(angle > 85 && angle < 95){
+			double distance = sqrt((x1-y1)*(x1-y1)+(x2-y2)*(x2-y2));
+			// cout << distance << endl;
+			 //if(distance < 100){
+			 	//line( image, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0,0,0), 1, CV_AA);
+			// }
+  			vertLines.push_back(distance);
+  			Point p1;
+  			p1.x =x1;
+  			p1.y = y1;
+  			Point p2;
+  			p2.x = x2;
+  			p2.y = y2;
+  			acceptablePoint.push_back(p1);
+			acceptablePoint.push_back(p2);
+  			
+  		}	
+	}
+	vertLinesClone = vertLines;
+
+	
+	harris = cornerHarris(harris, image, acceptablePoint);
+
+	imshow("houghlines", image);
+    waitKey(0);
+  return 0;
+  }
+  
+  /*
+  Mat image = imread(filename, CV_LOAD_IMAGE_COLOR);
+
+  Mat sobelVertical = (Mat_<double>(3, 3) << 
+                -1, 0, 1,
+                -2, 0, 2,
+                -1, 0, 1);
+
+  Mat sobelHorizontal = (Mat_<double>(3, 3) << 
+                -1, -2, -1,
+                0, 0, 0,
+                1, 2, 1);
+
+  Mat dbydx = conv(input, sobelVertical);
+  
+  Mat dbydy = conv(input, sobelHorizontal);
+
+  Mat magnitude = getMagnitude(dbydx, dbydy);
+  magnitude = normalize(magnitude);
+  threshold(magnitude, 20);
+
+  Mat gradient = getGradient(dbydx, dbydy);
+
+  int binSize = 6;
+  Mat houghSpace = houghTransform(magnitude, gradient, 12, 20, binSize);
+  Mat flattened = flatten(houghSpace);
+  flattened = normalize(flattened);
+
+  vector<Circle> vec = getCircles(houghSpace, binSize, 350, 30);
+
+  Scalar color(0, 0, 255);
+  int thickness = 2;
+  int lineType = 8;
+
+  for (int i = 0; i < 30; i++) {
+    for (int j = 0; j < 30; j++) {
+      legoPiece[i][j] = Scalar(0, 0, 0);
+    }
+  }
+    
+  drawGrid(image, Point(100, 100), 50, 0);
+
+
+  // legoPiece[0][0] = Scalar(0, 0, 255);
+  // legoPiece[1][0] = Scalar(0, 255, 255);
+
+  drawLegoPiece();
+
+  imshow("image", image);
+  // imshow("hs", flattened);
+  // imshow("mag", magnitude);
+  // imshow("grad", gradient);
+
+  while ((char) waitKey() != 'a')
+    ;
+
+  return 0;
+}*/
