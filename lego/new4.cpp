@@ -3,8 +3,11 @@
 #include <highgui/highgui.hpp>
 #include <math.h>
 #include "util.h"
+#include "boost/multi_array.hpp"
+#include <cassert>
 using namespace std;
 using namespace cv;
+
 
 
 void removeBackground (Mat image) {
@@ -311,16 +314,113 @@ void initialiseTestArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], 
     viewArrayBack[2][7] = 2;viewArrayBack[3][7] = 2;
     viewArrayBack[2][8] = 3;viewArrayBack[3][8] = 3;viewArrayBack[4][8] = 3;
 
-    viewArrayLeft[5][6] = 1;viewArrayLeft[6][6] = 1;viewArrayLeft[7][6] = 1;viewArrayLeft[8][6] = 1;
-    viewArrayLeft[5][7] = 2;viewArrayLeft[6][7] = 2;
-    viewArrayLeft[5][8] = 2;viewArrayLeft[6][8] = 2;
+    viewArrayRight[5][6] = 1;viewArrayRight[6][6] = 1;viewArrayRight[7][6] = 1;viewArrayRight[8][6] = 1;
+    viewArrayRight[5][7] = 2;viewArrayRight[6][7] = 2;
+    viewArrayRight[5][8] = 2;viewArrayRight[6][8] = 2;
+}
+
+void findBoundingBox(int &top, int &right, int &bottom, int &left, int array[20][20]){
+      top = 20;left = 20; bottom=0; right=0;
+       for(int i = 0; i < 20; i++){
+        for(int j = 0; j < 20; j++){
+          if (array[i][j] != 0){
+              if(i < left) left = i;
+              if(i > right) right = i;
+              if(j < top) top = j;
+              if(j > bottom) bottom = j;
+          }
+        }
+    }
+    cout << "top = " << top << ", left = "<< left << ", right = " << right << ", bottom = " << bottom << endl;
+
 }
 
 
-
-
 void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int viewArrayRight[20][20], int viewArrayBack[20][20]){
-      colorArrayCell Array3d[20][20][20];
+    int gSize = 20;
+   typedef boost::multi_array<colorArrayCell, 3> array3d;
+   typedef array3d::index index;
+    array3d A(boost::extents[gSize][gSize][gSize]);
+
+    int frontTop, frontRight, frontBottom, frontLeft;
+    int backTop, backRight, backBottom, backLeft;
+    int leftTop, leftRight, leftBottom, leftLeft;
+    int rightTop, rightRight, rightBottom, rightLeft;
+
+    findBoundingBox(frontTop, frontRight, frontBottom, frontLeft, viewArrayFront);
+    findBoundingBox(backTop, backRight, backBottom, backLeft, viewArrayBack);
+    findBoundingBox(leftTop, leftRight, leftBottom, leftLeft, viewArrayLeft);
+    findBoundingBox(rightTop, rightRight, rightBottom, rightLeft, viewArrayRight);
+
+
+    int topFrontBackDifference = frontTop - backTop;
+    int leftFrontBackDifference = frontLeft - backLeft;
+  //      int leftFrontBackDifference = frontLeft - backLeft;
+
+    cout << "leftFrontBackDifference = " << leftFrontBackDifference << endl;
+        cout << "rightFrontBackDifference = " << backLeft << endl;
+
+
+    for(int i = 0; i < gSize; i++){
+      for(int j = 0; j < gSize; j++){
+        if (viewArrayFront[i][j] != 0){
+          for(int k = 0; k < gSize; k++){
+            if(viewArrayFront[i][j] == 1){
+                A[i][j][k].redCount++;
+            }else if(viewArrayFront[i][j] == 2){
+                A[i][j][k].greenCount++;
+            }else if(viewArrayFront[i][j] == 3){
+                A[i][j][k].blueCount++;
+            }
+          }
+        }
+      }
+    }
+
+
+    for(int i = 0; i < gSize; i++){
+      for(int j = 0; j < gSize; j++){
+        if (viewArrayBack[i][j] != 0){
+          for(int k = 0; k < gSize; k++){
+            int newIinitial = gSize-i+leftFrontBackDifference;
+            int newI = newIinitial - (((gSize - backRight + 1) - gSize/2)*2);
+            int newJ = j+topFrontBackDifference;
+            if(viewArrayBack[i][j] == 1){
+                A[newI][newJ][k].redCount++;
+            }else if(viewArrayBack[i][j] == 2){
+                A[newI][newJ][k].greenCount++;
+            }else if(viewArrayBack[i][j] == 3){
+                A[newI][newJ][k].blueCount++;
+            }
+          } 
+        }
+      }
+    }
+
+
+    
+
+
+
+
+
+
+    int count2 = 0;
+
+        for(index i = 0 ; i < gSize; i ++){
+      for(index j = 0; j < gSize; j++){
+        for(index k = 0; k < gSize; k++){
+          if (viewArrayFront[i][j] != 0){
+            // count2++;
+             A[i][j][k].print();
+         }
+        }
+      }
+    }
+
+    cout <<"count 2 = " <<count2 << endl;
+    cout <<"count 3 = " <<count3 << endl;
+      
 }
 
 

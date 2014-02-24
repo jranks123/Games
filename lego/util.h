@@ -24,6 +24,14 @@ class colorArrayCell
 public:
   int redCount, blueCount, greenCount, finalColour;
   colorArrayCell () : redCount(0), blueCount(0), greenCount(0), finalColour(0) {}
+
+   void print () {
+    cout << "#(" << redCount << ", " << blueCount << ", " << greenCount << ")" << endl;
+  }
+
+  int getRedCount(){
+    return redCount;
+  }
 };
 
 
