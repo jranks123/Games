@@ -89,7 +89,7 @@ Colour getColour (Vec3b pixelColour) {
   return colour;
   
 }
-std
+
 
 
 //IDEA : DRAW FROM BRIGHTEST HOUGH POINT
@@ -110,7 +110,7 @@ bool pointIsAcceptable(double x, double y, vector<Point> pointVec){
 
 
 void drawGrid3(harrisLine finalHLines, double total, double width, Mat image){
-
+  int viewArray[20][20];
    for(int i = -10; i < 10; i++){
       for(int j = -10; j < 0; j++){
         double red = 0.0, blue = 0.0, green = 0.0, x = finalHLines.p1.x + width*i, y = finalHLines.p1.y+j*total;
