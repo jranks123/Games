@@ -2,7 +2,7 @@
 #include <opencv.hpp>
 #include <highgui/highgui.hpp>
 #include <math.h>
-#include "extraFunctions.h"
+#include "util.h"
 using namespace std;
 using namespace cv;
 
@@ -298,6 +298,32 @@ double cornerHarris(int viewArray[20][20], Mat src, Mat image, vector<Point> acc
 }
  
 
+void initialiseTestArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int viewArrayRight[20][20], int viewArrayBack[20][20]){
+    viewArrayFront[4][4] = 1;viewArrayFront[5][4] = 1;
+    viewArrayFront[4][5] = 2;viewArrayFront[5][5] = 2;
+    viewArrayFront[4][6] = 3;viewArrayFront[5][6] = 3;viewArrayFront[3][6] = 3;
+
+    viewArrayLeft[2][3] = 1;viewArrayLeft[3][3] = 1;viewArrayLeft[4][3] = 1;viewArrayLeft[5][3] = 1;
+    viewArrayLeft[4][4] = 2;viewArrayLeft[5][4] = 2;
+    viewArrayLeft[4][5] = 2;viewArrayLeft[5][5] = 2;
+
+    viewArrayBack[2][6] = 1;viewArrayBack[3][6] = 1;
+    viewArrayBack[2][7] = 2;viewArrayBack[3][7] = 2;
+    viewArrayBack[2][8] = 3;viewArrayBack[3][8] = 3;viewArrayBack[4][8] = 3;
+
+    viewArrayLeft[5][6] = 1;viewArrayLeft[6][6] = 1;viewArrayLeft[7][6] = 1;viewArrayLeft[8][6] = 1;
+    viewArrayLeft[5][7] = 2;viewArrayLeft[6][7] = 2;
+    viewArrayLeft[5][8] = 2;viewArrayLeft[6][8] = 2;
+}
+
+
+
+
+void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int viewArrayRight[20][20], int viewArrayBack[20][20]){
+      colorArrayCell Array3d[20][20][20];
+}
+
+
 
 
 int main () {
@@ -319,11 +345,12 @@ int main () {
    // HoughStuff(image, input, acceptablePoint);
 
 
-  initialiseTestArray
+  int viewArrayFront[20][20] = {{0}};   int viewArrayLeft[20][20] = {{0}};   int viewArrayRight[20][20] = {{0}};   int viewArrayBack[20][20] = {{0}};
+  initialiseTestArray(viewArrayFront, viewArrayLeft, viewArrayBack, viewArrayRight);
+  create3dArray(viewArrayFront, viewArrayLeft, viewArrayBack, viewArrayRight);
 
-
-	 int viewArray[20][20];
-   harris = cornerHarris(viewArray, harris, image, acceptablePoint);
+	// int viewArray[20][20];
+  // harris = cornerHarris(viewArray, harris, image, acceptablePoint);
 
 
 	imshow("houghlines", image);
