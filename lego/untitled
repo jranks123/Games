@@ -316,7 +316,7 @@ void initialiseTestArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], 
 
     viewArrayRight[5][6] = 1;viewArrayRight[6][6] = 1;viewArrayRight[7][6] = 1;viewArrayRight[8][6] = 1;
     viewArrayRight[5][7] = 2;viewArrayRight[6][7] = 2;
-    viewArrayRight[5][8] = 3;viewArrayRight[6][8] = 3;
+    viewArrayRight[5][8] = 2;viewArrayRight[6][8] = 2;
 }
 
 void findBoundingBox(int &top, int &right, int &bottom, int &left, int array[20][20]){
@@ -356,9 +356,6 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
     int topFrontBackDifference = frontTop - backTop;
     int leftFrontBackDifference = frontLeft - backLeft;
     int topFrontRightDifference = frontTop - rightTop;
-
-    int topRightLeftDifference = rightTop - leftTop;
-    int leftRightLeftDistance = rightLeft - leftLeft;
 
   //      int leftFrontBackDifference = frontLeft - backLeft;
 
@@ -403,21 +400,17 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
     }
 
 
-   for(int k = 0; k < gSize; k++){
+   /* for(int k = 0; k < gSize; k++){
       for(int j = 0; j < gSize; j++){
         if (viewArrayRight[k][j] != 0){
-          cout << k << ", " << j <<  " = " <<  viewArrayRight[k][j] <<  endl;
           for(int i = 0; i < gSize; i++){
             int newJ = j+topFrontRightDifference;
             if(viewArrayRight[k][j] == 1){
                 A[i][newJ][k].redCount++;
-               // cout << "redcount "<<A[i][newJ][k].redCount << endl;
-            }else if(viewArrayRight[k][j] == 2){
+            }else if(viewArrayBack[k][j] == 2){
                 A[i][newJ][k].greenCount++;
-               // cout << "bluecount "<<A[i][newJ][k].blueCount << endl;
-            }else if(viewArrayRight[k][j] == 3){
+            }else if(viewArrayBack[k][j] == 3){
                 A[i][newJ][k].blueCount++;
-                //cout << "greencount "<<A[i][newJ][k].greenCount << endl;
             }
           } 
         }
@@ -436,9 +429,9 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
         for(index i = 0 ; i < gSize; i ++){
       for(index j = 0; j < gSize; j++){
         for(index k = 0; k < gSize; k++){
-          if (A[i][j][k].getSum() == 3){
+          if (A[i][j][k].getSum() != 0){
             // count2++;
-            A[i][j][k].print();
+             A[i][j][k].print();
             cout << i << ", " << j << ", " << k << "\n"<< endl;
          }
         }

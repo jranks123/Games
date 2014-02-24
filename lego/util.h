@@ -26,11 +26,15 @@ public:
   colorArrayCell () : redCount(0), blueCount(0), greenCount(0), finalColour(0) {}
 
    void print () {
-    cout << "#(" << redCount << ", " << blueCount << ", " << greenCount << ")" << endl;
+    cout << "#(" << redCount << ", " << greenCount << ", " << blueCount << ")" << endl;
   }
 
   int getRedCount(){
     return redCount;
+  }
+
+  int getSum(){
+    return redCount+blueCount+greenCount;
   }
 };
 
