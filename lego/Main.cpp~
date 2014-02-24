@@ -1,0 +1,449 @@
+#include <iostream>
+#include <opencv.hpp>
+#include <highgui/highgui.hpp>
+#include <math.h>
+using namespace std;
+using namespace cv;
+
+Mat normalize (Mat input) {
+  float min = input.at<float>(0, 0);
+  float max = input.at<float>(0, 0);
+
+  for (int r = 0; r < input.rows; r++) {
+    float* rowPtr = input.ptr<float>(r);
+
+    for (int c = 0; c < input.cols; c++) {
+      if (rowPtr[c] > max) {
+	max = rowPtr[c];
+      }
+      else if (rowPtr[c] < min) {
+	min = rowPtr[c];
+      }
+    }
+  }
+
+  Mat output = Mat(input.rows, input.cols, CV_8UC1);
+  
+  for (int r = 0; r < input.rows; r++) {
+    float* inputRowPtr = input.ptr<float>(r);
+    uchar* outputRowPtr = output.ptr<uchar>(r);
+    
+    for (int c = 0; c < input.cols; c++) {
+      outputRowPtr[c] = (uchar)(((inputRowPtr[c] - min) / (max - min)) * 255);
+    }
+  }
+
+  return output;
+}
+
+Mat conv (Mat input, Mat kernel) {
+  Mat output = Mat(input.rows, input.cols, CV_32FC1);
+  int kernelRadiusX = ( kernel.size[0] - 1 ) / 2;
+  int kernelRadiusY = ( kernel.size[1] - 1 ) / 2;
+
+  Mat paddedInput;
+  copyMakeBorder(input, paddedInput, 
+                 kernelRadiusX, kernelRadiusX, kernelRadiusY, kernelRadiusY,
+                 BORDER_REPLICATE );
+
+  for ( int i = kernelRadiusX; i < input.rows - kernelRadiusX; i++ ) {
+    for( int j = kernelRadiusY; j < input.cols - kernelRadiusY; j++ ) {
+      float sum = 0.0;
+      for( int m = -kernelRadiusX; m <= kernelRadiusX; m++ ) {
+        for( int n = -kernelRadiusY; n <= kernelRadiusY; n++ ) {
+          int imagex = i + 1 + m;
+          int imagey = j + 1 + n;
+          int kernelx = m + kernelRadiusX;
+          int kernely = n + kernelRadiusY;
+          int imageval = ( int ) paddedInput.at<uchar>( imagex, imagey );
+          double kernalval = kernel.at<double>( kernelx, kernely );
+          sum += imageval * kernalval;
+        }
+      }
+      output.at<float>(i, j) = (float) sum;
+    }
+  }
+
+  return output;
+}
+
+Mat getMagnitude (Mat a, Mat b) {
+  Mat output = Mat(a.rows, a.cols, CV_32FC1);
+  
+  for (int r = 0; r < a.rows; r++) {
+    float* aRowPtr = a.ptr<float>(r);
+    float* bRowPtr = b.ptr<float>(r);
+    float* outputRowPtr = output.ptr<float>(r);
+
+    
+    for (int c = 0; c < a.cols; c++) {
+      float p1 = aRowPtr[c];
+      float p2 = bRowPtr[c];
+
+      outputRowPtr[c] = sqrt(p1 * p1 + p2 * p2);
+    }
+  }
+
+  return output;
+}
+
+Mat getGradient (Mat a, Mat b) {
+  Mat output = Mat(a.rows, a.cols, CV_32FC1);
+  
+  for (int r = 0; r < a.rows; r++) {
+    float* aRowPtr = a.ptr<float>(r);
+    float* bRowPtr = b.ptr<float>(r);
+    float* outputRowPtr = output.ptr<float>(r);
+
+    
+    for (int c = 0; c < a.cols; c++) {
+      float p1 = aRowPtr[c];
+      float p2 = bRowPtr[c];
+
+      if (p1 != 0.0) {
+	outputRowPtr[c] = atan(p2 / p1);
+      }
+      else {
+	outputRowPtr[c] = M_PI / 2.0;
+      }
+    }
+  }
+
+  return output;
+}
+
+void threshold (Mat input, int val) {
+  for (int r = 0; r < input.rows; r++) {
+    uchar* rowPtr = input.ptr<uchar>(r);
+    
+    for (int c = 0; c < input.cols; c++) {
+      rowPtr[c] = (rowPtr[c] < val ? 0 : 255);
+    }
+  }
+}
+
+Mat houghTransform (Mat magnitude, Mat gradient, int minR, int maxR, int binSize) {
+  // x, y, radius
+  int sz[3] = {magnitude.rows/binSize, magnitude.cols/binSize, maxR/binSize};
+  Mat houghSpace(3, sz, CV_32FC1, Scalar::all(0));
+
+  for (int row = 0; row < magnitude.rows; row++) {
+    uchar* rowPtr = magnitude.ptr<uchar>(row);
+    
+    for (int col = 0; col < magnitude.cols; col++) {
+      if (rowPtr[col] == 255) {
+      	int x = row;
+      	int y = col;
+      	float theta = gradient.at<float>(row, col) + M_PI/2;
+
+	for (int radius = minR; radius < maxR; radius++) {
+
+	  int xc1 = round(x + radius * cos(theta));
+	  int yc1 = round(y - radius * sin(theta));
+	  int xc2 = round(x - radius * cos(theta));
+	  int yc2 = round(y + radius * sin(theta));
+
+	  if (xc1 >= 0 && xc1 < magnitude.rows &&
+	      yc1 >= 0 && yc1 < magnitude.cols) {
+	    houghSpace.at<float>(xc1/binSize, yc1/binSize, radius/binSize) += 1;
+	  }
+	  if (xc2 >= 0 && xc2 < magnitude.rows &&
+	      yc2 >= 0 && yc2 < magnitude.cols) {
+	    houghSpace.at<float>(xc2/binSize, yc2/binSize, radius/binSize) += 1;
+	  }
+	}
+      }
+    }
+  }
+
+  return houghSpace;
+}
+
+Mat flatten (Mat hs) {
+  int xSize = hs.size.p[0];
+  int ySize = hs.size.p[1];
+  int rSize = hs.size.p[2];
+  
+  Mat output = Mat::zeros(xSize, ySize, CV_32FC1);
+
+  for (int x = 0; x < xSize; x++) {
+    float* outputRowPtr = output.ptr<float>(x);
+    
+    for (int y = 0; y < ySize; y++) {
+      for (int r = 0; r < rSize; r++) {
+  	outputRowPtr[y] += hs.at<float>(x, y, r);
+      }
+    }
+  }
+
+  return output;
+}
+
+class Circle {
+public:
+  int x, y, radius, value;
+  Circle (int x, int y, int radius, int value): x(x), y(y), radius(radius), value(value) {}
+};
+
+vector<Circle> getCircles (Mat hs, int binSize, int threshold, int distance) {
+  vector<Circle> vec;
+  int xSize = hs.size.p[0];
+  int ySize = hs.size.p[1];
+  int rSize = hs.size.p[2];
+
+  for (int x = 0; x < xSize; x++) {
+    for (int y = 0; y < ySize; y++) {
+      for (int r = 0; r < rSize; r++) {
+	int value = hs.at<float>(x, y, r);
+  	if (value > threshold) {
+	  Circle newCircle = Circle(y * binSize, x * binSize, r * binSize, value);
+
+	  int index = -1;
+	  for (int i = 0; i < vec.size(); i++) {
+	    int dx = newCircle.x - vec[i].x;
+	    int dy = newCircle.y - vec[i].y;
+
+	    int dist = sqrt(dx * dx + dy * dy);
+
+	    if (dist < distance) {
+	      index = i;
+	    }	    
+	  }
+
+	  if (index == -1) {
+	    vec.push_back(newCircle);
+	  }
+	  else {
+	    if (newCircle.value > vec[index].value) {
+	      vec[index] = newCircle;
+	    }
+	  }
+	}
+      }
+    }
+  }
+  
+  
+  return vec;
+}
+
+int r, g, b, num;
+
+void paintRegion (Point point, Mat image) {
+  Vec3b pixel = image.at<Vec3b>(point.y, point.x);
+  
+  if (pixel != Vec3b(0, 0, 0) && pixel != Vec3b(255, 0, 0)) {
+    b += (int)pixel(0);
+    g += (int)pixel(1);
+    r += (int)pixel(2);
+    num++;
+    
+    image.at<Vec3b>(point.y, point.x) = Vec3b(0, 0, 0);
+
+    for (int i = -1; i <= 1; i++) {
+      for (int j = -1; j <= 1; j++) {
+        if (i != 0 || j != 0) {
+          paintRegion(Point(point.x + i, point.y + j), image);
+        }
+      }
+    }
+  }
+}
+
+Scalar getRegionColor (Mat image, Point seedLocation) {
+  r = 0;
+  g = 0;
+  b = 0;
+  num = 0;
+
+  paintRegion(seedLocation, image);
+
+  return Scalar(b/num, g/num, r/num);
+}
+
+//######################################################
+Scalar normalizeColor (Scalar color) {
+  float a = (float) color(0) / color(1);
+  float b = (float) color(1) / color(2);
+  float c = (float) color(2) / color(0);
+
+  float avg = (a + b + c) / 3;
+  float deviation = abs(avg - 1.0);
+
+  if (deviation > 0.3) {
+    Scalar colors[3];
+    colors[0] = Scalar(0, 0, 255);
+    colors[1] = Scalar(0, 255, 255);
+    colors[2] = Scalar(0, 255, 0);
+
+    int distance[3];
+
+    for (int i = 0; i < 3; i++) {
+      int db = color(0) - colors[i](0);
+      int dg = color(1) - colors[i](1);
+      int dr = color(2) - colors[i](2);
+  
+      distance[i] = db*db + dg*dg + dr*dr;
+
+    }
+
+    int minDistance = 1000000; //##############################
+    int minIndex = -1;
+    
+    for (int i = 0; i < 3; i++) {
+      if (distance[i] < minDistance) {
+        minDistance = distance[i];
+        minIndex = i;
+      }
+    }
+
+    if (minIndex == 0) {
+      if ((float)color(2) / color(1) < 2.0) {
+        return colors[1];
+      }
+    }
+
+    return colors[minIndex];
+  }
+  else {
+    return Scalar(255, 255, 255);
+  }
+}
+
+Scalar legoPiece[30][30];
+
+void drawGrid (Mat image, Point origin, float size, float angle) {
+  Point vh(48, -9);
+  Point vv(9, 48);
+
+  origin = Point(95, 120);
+
+  for (int i = 0; i < 11; i++) {
+    for (int j = 0; j < 8; j++) {
+      Point p1 = i * vh + j * vv + origin;
+      Point p2 = i * vh + (j + 1) * vv + origin;
+      Point p3 = (i + 1) * vh + j * vv + origin;
+
+      line(image, p1, p2, Scalar(255, 0, 0), 2, 8);
+      line(image, p1, p3, Scalar(255, 0, 0), 2, 8);
+    }
+  }
+
+  Mat temp = image.clone();
+
+  for (int i = 0; i < 10; i++) {
+    for (int j = 0; j < 7; j++) {
+      Point p1 = i * vh + j * vv + origin;
+      Point p2 = (i+1) * vh + (j+1) * vv + origin;
+      Point middle = (p1 + p2) * 0.5;
+
+      Scalar color = normalizeColor(getRegionColor(temp, middle));
+
+
+      if (color != Scalar(255, 255, 255)) {
+        circle(image, middle, 15, color, 4, 8);
+        legoPiece[i][j] = color;
+      }
+    }
+  }
+}
+
+void drawLegoPiece () {
+  Mat image(250, 350, CV_8UC3, Scalar(0,0,0));
+
+  //  circle(image, Point(, 100), 10, Scalar(0, 0, 255), 1, 8);
+  int size = 30;
+  for (int i = 0; i < 30; i++) {
+    for (int j = 0; j < 30; j++) {
+      Point p1 = Point(i * size + 10, j * size + 10);
+      Point p2 = Point((i + 1) * size - 1 + 10, (j + 1) * size - 1 + 10);
+      Point center = (p1 + p2) * 0.5;
+
+      if (legoPiece[i][j] != Scalar(0, 0, 0)) {
+        rectangle(image, p1, p2, legoPiece[i][j], 1, 8);
+        circle(image, center, size * 0.4, legoPiece[i][j], 1, 8);
+      }
+    }
+  }
+    
+  imshow("lego piece", image);
+}
+
+int main () {
+  string filename = "pictures/lego5.png";
+  Mat input = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
+
+  if (!input.data) {
+    cerr << "Cannot open " << filename << endl;
+    exit(0);
+  }
+  
+  Mat image = imread(filename, CV_LOAD_IMAGE_COLOR);
+
+  Mat sobelVertical = (Mat_<double>(3, 3) << 
+                -1, 0, 1,
+                -2, 0, 2,
+                -1, 0, 1);
+
+  Mat sobelHorizontal = (Mat_<double>(3, 3) << 
+                -1, -2, -1,
+                0, 0, 0,
+                1, 2, 1);
+
+  Mat dbydx = conv(input, sobelVertical);
+  
+  Mat dbydy = conv(input, sobelHorizontal);
+
+  Mat magnitude = getMagnitude(dbydx, dbydy);
+  magnitude = normalize(magnitude);
+  threshold(magnitude, 20);
+
+  Mat gradient = getGradient(dbydx, dbydy);
+
+  int binSize = 6;
+  Mat houghSpace = houghTransform(magnitude, gradient, 12, 20, binSize);
+  Mat flattened = flatten(houghSpace);
+  flattened = normalize(flattened);
+
+  vector<Circle> vec = getCircles(houghSpace, binSize, 350, 30);
+
+  Scalar color(0, 0, 255);
+  int thickness = 2;
+  int lineType = 8;
+
+  for (int i = 0; i < 30; i++) {
+    for (int j = 0; j < 30; j++) {
+      legoPiece[i][j] = Scalar(0, 0, 0);
+    }
+  }
+    
+  drawGrid(image, Point(100, 100), 50, 0);
+
+
+  // legoPiece[0][0] = Scalar(0, 0, 255);
+  // legoPiece[1][0] = Scalar(0, 255, 255);
+
+  drawLegoPiece();
+
+  imshow("image", image);
+  // imshow("hs", flattened);
+  // imshow("mag", magnitude);
+  // imshow("grad", gradient);
+
+  while ((char) waitKey() != 'a')
+    ;
+
+  return 0;
+}
+
+/*
+ * apply color filter (remove background and shadows)
+ * use brick edges plus approximate size of circle to create grid and reinforce centres expected in grid
+ * recognition of one color at a time (different thresholds)
+ * method to remove loner circles
+ * two pass, find most likely values of multiple thresholds then recognize
+ * create graph of colored nodes
+ * thicker borders to get better regions
+
+ * color type Scalar? Vec3b? Color? typedef
+ */
