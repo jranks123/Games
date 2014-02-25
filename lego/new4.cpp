@@ -332,6 +332,8 @@ void findBoundingBox(int &top, int &right, int &bottom, int &left, int array[20]
           }
         }
     }
+    right = 20 - right -1;
+    bottom = 20 - bottom - 1;
     cout << "top = " << top << ", left = "<< left << ", right = " << right << ", bottom = " << bottom << endl;
 
 }
@@ -366,7 +368,7 @@ multi_array<colorArrayCell, 3> create3dArray(int viewArrayFront[20][20], int vie
     cout << "leftFrontBackDifference = " << leftFrontBackDifference << endl;
         cout << "rightFrontBackDifference = " << backLeft << endl;
 
-
+        //exit(0);
     for(int i = 0; i < gSize; i++){
       for(int j = 0; j < gSize; j++){
         if (viewArrayFront[i][j] != 0){
@@ -388,8 +390,8 @@ multi_array<colorArrayCell, 3> create3dArray(int viewArrayFront[20][20], int vie
       for(int j = 0; j < gSize; j++){
         if (viewArrayBack[i][j] != 0){
           for(int k = 0; k < gSize; k++){
-            int newIinitial = gSize-i+leftFrontBackDifference;
-            int newI = newIinitial - (((gSize - backRight + 1) - gSize/2)*2);
+            int newIinitial = gSize-i-1;
+            int newI = newIinitial + frontLeft - backRight;
             int newJ = j+topFrontBackDifference;
             if(viewArrayBack[i][j] == 1){
                 A[newI][newJ][k].redCount++;
@@ -430,8 +432,8 @@ multi_array<colorArrayCell, 3> create3dArray(int viewArrayFront[20][20], int vie
       for(int j = 0; j < gSize; j++){
         if (viewArrayLeft[k][j] != 0){
           for(int i = 0; i < gSize; i++){
-            int newKinitial = gSize-k+leftRightLeftDifference;
-            int newK = newKinitial - (((gSize - leftRight + 1) - gSize/2)*2);
+            int newKinitial = gSize-k-1;
+            int newK = newKinitial + rightLeft - leftRight ;
             int newJ = j+topRightLeftDifference+topFrontRightDifference;
             if(viewArrayLeft[k][j] == 1){
                 A[i][newJ][newK].redCount++;
@@ -445,7 +447,7 @@ multi_array<colorArrayCell, 3> create3dArray(int viewArrayFront[20][20], int vie
       }
     }
   
-
+  
 
 
 
