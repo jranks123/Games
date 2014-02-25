@@ -1,13 +1,16 @@
+//g++ -ggdb `pkg-config --cflags opencv` new4.cpp `pkg-config --libs opencv`
+
 #ifndef UTIL_H
 #define UTIL_H
 
 #include <iostream>
-#include <opencv.hpp>
-#include <highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <math.h>
 #include "util.h"
 using namespace std;
 using namespace cv;
+
 
 
 
@@ -311,7 +314,8 @@ void drawGrid2(harrisLine finalHLines, double total, double width, double yScale
         Vec3b avColour(red,blue,green);
         int t = 50;
         //if((red < t || blue < t || green < t)){
-             cout << avColour << endl;
+         //
+         //    cout << avColour << endl;
           for(size_t f = y; f < y+total; f++){
               for(size_t g = x; g < x+width; g++){
                 image.at<Vec3b>(f,g) = avColour;

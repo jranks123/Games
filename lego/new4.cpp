@@ -1,9 +1,9 @@
 #include <iostream>
-#include <opencv.hpp>
-#include <highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <math.h>
 #include "util.h"
-#include "boost/multi_array.hpp"
+#include <boost/multi_array.hpp>
 #include <cassert>
 using namespace std;
 using namespace cv;
@@ -308,7 +308,7 @@ void initialiseTestArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], 
 
     viewArrayLeft[2][3] = 1;viewArrayLeft[3][3] = 1;viewArrayLeft[4][3] = 1;viewArrayLeft[5][3] = 1;
     viewArrayLeft[4][4] = 2;viewArrayLeft[5][4] = 2;
-    viewArrayLeft[4][5] = 2;viewArrayLeft[5][5] = 2;
+    viewArrayLeft[4][5] = 3;viewArrayLeft[5][5] = 3;
 
     viewArrayBack[2][6] = 1;viewArrayBack[3][6] = 1;
     viewArrayBack[2][7] = 2;viewArrayBack[3][7] = 2;
@@ -358,7 +358,7 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
     int topFrontRightDifference = frontTop - rightTop;
 
     int topRightLeftDifference = rightTop - leftTop;
-    int leftRightLeftDistance = rightLeft - leftLeft;
+    int leftRightLeftDifference = rightLeft - leftLeft;
 
   //      int leftFrontBackDifference = frontLeft - backLeft;
 
@@ -403,7 +403,7 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
     }
 
 
-   for(int k = 0; k < gSize; k++){
+  /* for(int k = 0; k < gSize; k++){
       for(int j = 0; j < gSize; j++){
         if (viewArrayRight[k][j] != 0){
           cout << k << ", " << j <<  " = " <<  viewArrayRight[k][j] <<  endl;
@@ -422,6 +422,25 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
           } 
         }
       }
+    }*/
+
+    for(int k = 0; k < gSize; k++){
+      for(int j = 0; j < gSize; j++){
+        if (viewArrayLeft[k][j] != 0){
+          for(int i = 0; i < gSize; i++){
+            int newKinitial = gSize-k+leftRightLeftDifference;
+            int newK = newKinitial - (((gSize - leftRight + 1) - gSize/2)*2);
+            int newJ = j+topRightLeftDifference+topFrontRightDifference;
+            if(viewArrayLeft[k][j] == 1){
+                A[i][newJ][newK].redCount++;
+            }else if(viewArrayLeft[k][j] == 2){
+                A[i][newJ][newK].greenCount++;
+            }else if(viewArrayLeft[k][j] == 3){
+                A[i][newJ][newK].blueCount++;
+            }
+          } 
+        }
+      }
     }
 
 
@@ -436,7 +455,7 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
         for(index i = 0 ; i < gSize; i ++){
       for(index j = 0; j < gSize; j++){
         for(index k = 0; k < gSize; k++){
-          if (A[i][j][k].getSum() == 3){
+          if (A[i][j][k].getSum() >= 3){
             // count2++;
             A[i][j][k].print();
             cout << i << ", " << j << ", " << k << "\n"<< endl;
