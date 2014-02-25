@@ -7,6 +7,7 @@
 #include <cassert>
 using namespace std;
 using namespace cv;
+using namespace boost;
 
 
 
@@ -336,7 +337,7 @@ void findBoundingBox(int &top, int &right, int &bottom, int &left, int array[20]
 }
 
 
-void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int viewArrayRight[20][20], int viewArrayBack[20][20]){
+multi_array<colorArrayCell, 3> create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int viewArrayRight[20][20], int viewArrayBack[20][20]){
     int gSize = 20;
    typedef boost::multi_array<colorArrayCell, 3> array3d;
    typedef array3d::index index;
@@ -358,7 +359,7 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
     int topFrontRightDifference = frontTop - rightTop;
 
     int topRightLeftDifference = rightTop - leftTop;
-    int leftRightLeftDifference = rightLeft - leftLeft;
+    int leftRightLeftDifference = rightLeft - leftLeft -1;  //NOT SURE WHY I HAD TO ADD THIS -1
 
   //      int leftFrontBackDifference = frontLeft - backLeft;
 
@@ -403,7 +404,7 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
     }
 
 
-  /* for(int k = 0; k < gSize; k++){
+   for(int k = 0; k < gSize; k++){
       for(int j = 0; j < gSize; j++){
         if (viewArrayRight[k][j] != 0){
           cout << k << ", " << j <<  " = " <<  viewArrayRight[k][j] <<  endl;
@@ -422,8 +423,9 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
           } 
         }
       }
-    }*/
+    }
 
+    
     for(int k = 0; k < gSize; k++){
       for(int j = 0; j < gSize; j++){
         if (viewArrayLeft[k][j] != 0){
@@ -442,6 +444,7 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
         }
       }
     }
+  
 
 
 
@@ -449,21 +452,21 @@ void create3dArray(int viewArrayFront[20][20], int viewArrayLeft[20][20], int vi
 
 
 
-
-
+      int count2 = 0;
 
         for(index i = 0 ; i < gSize; i ++){
       for(index j = 0; j < gSize; j++){
         for(index k = 0; k < gSize; k++){
           if (A[i][j][k].getSum() >= 3){
-            // count2++;
+             count2++;
             A[i][j][k].print();
             cout << i << ", " << j << ", " << k << "\n"<< endl;
          }
         }
       }
     }
-
+    cout << "cout 2 = "<<count2 << endl;
+    return A;
 
       
 }
@@ -492,7 +495,7 @@ int main () {
 
   int viewArrayFront[20][20] = {{0}};   int viewArrayLeft[20][20] = {{0}};   int viewArrayRight[20][20] = {{0}};   int viewArrayBack[20][20] = {{0}};
   initialiseTestArray(viewArrayFront, viewArrayLeft, viewArrayBack, viewArrayRight);
-  create3dArray(viewArrayFront, viewArrayLeft, viewArrayBack, viewArrayRight);
+  multi_array<colorArrayCell, 3> array3d =create3dArray(viewArrayFront, viewArrayLeft, viewArrayBack, viewArrayRight);
 
   // int viewArray[20][20];
   // harris = cornerHarris(viewArray, harris, image, acceptablePoint);
