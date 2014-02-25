@@ -361,7 +361,7 @@ multi_array<colorArrayCell, 3> create3dArray(int viewArrayFront[20][20], int vie
     int topFrontRightDifference = frontTop - rightTop;
 
     int topRightLeftDifference = rightTop - leftTop;
-    int leftRightLeftDifference = rightLeft - leftLeft -1;  //NOT SURE WHY I HAD TO ADD THIS -1
+   // int leftRightLeftDifference = rightLeft - leftLeft -1;  //NOT SURE WHY I HAD TO ADD THIS -1
 
   //      int leftFrontBackDifference = frontLeft - backLeft;
 
