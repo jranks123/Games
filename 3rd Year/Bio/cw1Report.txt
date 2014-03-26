@@ -1,0 +1,37 @@
+For this assignment I chose proteins from the TIM beta/alpha barrel. I chose this fold, as opposed to others I looked at, for a variety of reasons. Firstly, the proteins in it are roughly all a prominent barrel shape, made up of 8 alpha helixes and 8 beta sheets, making it easy to find proteins at all 3 levels with structural similarities. Also I felt they provided a good trade-off between being either very complicated and thus difficult to visually analyse the structural differences or too simple such that any structural similarities found could be coincidental. 
+
+The image 1THFvs1VZW.png shows the superimpositions of 1THF (chain D, blue) and 1VZW(Chain A, yellow). They are from the same family but from different proteins. I chose them as they clearly align very tightly: they have the exact same amount of sheets and helixes as each other and nearly all of the helixes are in the same place and pointing in the same direction, as are the sheets and loops. There are a couple of exceptions, namely the helix in the top left of the image is slightly off and a few loops aren’t quite aligned. This similarity was to be expected as they share a common ancestor and proteins from the same family often have very similar 3-dimensional structure. 
+
+The image 1THFvs1TQX.png shows the superimpositions of 1THF (chain D, blue) and 1TQX(Chain A, purple).  They are both from the same Superfamily, but from different families. I chose to hide Chain D of 1TQX as it made the comparison easier. I chose 1TQX as it is similar to 1THF but with a few differences. They are pretty tightly aligned; they take up roughly the same area and a lot of the helixes and sheets point in the same direction. However, there alignment is noticeably less tight than it was for the proteins from the same family. For example the blue sheets in the bottom right of the image aren’t matched by any from 1TQX. 1TQX also has a couple of extra helixes and a couple less sheets than 1THF.  This is probably because although they share a common ancestor and probably perform a similar function, they would have evolved differently over time. 
+
+The image 1THFvs3RUB.png shows the superimpositions of 1THF (chain D, blue) and 3RUB(Chain L, white). They are from the same fold but different Superfamilies.  I chose 3RUB as it has a few structural similarities but also has a lot of extra parts to it. Like 1THF, 3RUB forms a barrel shape, although the helixes and sheets do not align very well. It also has a number of helixes and sheets that do not match up at all with 1THF. The fact that they are in the same fold means that they are made up of the same core secondary structures, but they do not necessarily have a common ancestor so it is not surprising to see wild differences between their overall 3-dimensional structure alignment.
+
+
+Appendix:	
+1. PDB Code: 1THF (chain d)
+2. Fold: TIM beta/alpha-barrel
+3. Superfamily: Ribulose-phoshate binding barrel 
+4. Family: Histidine biosynthesis enzymes 
+5. Protein: Cyclase subunit (or domain) of imidazoleglycerolphosphate synthase HisF 
+6. Species: Thermotoga maritima 
+
+1. PDB Code: 1VZW (region a:2-240)
+2. Fold: TIM beta/alpha-barrel 
+3. Superfamily: Ribulose-phoshate binding barrel 
+4. Family: Histidine biosynthesis enzymes 
+5. Protein: Phosphoribosylformimino-5-aminoimidazole carboxamide ribotite isomerase HisA 
+6. Species: Streptomyces coelicolor 
+
+1. PDB Code: 1TQX (chain a)
+2. Fold: TIM beta/alpha-barrel 
+3. Superfamily: Ribulose-phoshate binding barrel  
+4. Family: D-ribulose-5-phosphate 3-epimerase 
+5. Protein: D-ribulose-5-phosphate 3-epimerase 
+6. Species: Plasmodium falciparum 
+
+1. PDB Code: 3RUB (chain l)
+2. Fold: TIM beta/alpha-barrel 
+3. Superfamily: RuBisCo, C-terminal domain  
+4. Family: RuBisCo, large subunit, C-terminal domain 
+5. Protein: Ribulose 1,5-bisphosphate carboxylase-oxygenase 
+6. Species: Tobacco (Nicotiana tabacum), variant turkish samsun 
