@@ -14,7 +14,10 @@ using namespace cv;
 
 
 
-
+struct finalPoint{
+  int x,y,z;
+  int colour;
+};
 
 struct harrisLine
 {

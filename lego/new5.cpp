@@ -210,7 +210,7 @@ double cornerHarris(int viewArray[20][20], Mat src, Mat image, vector<Point> acc
   int apertureSize = 31;
   double k = 0.03;*/
 
-
+      cout << "2" << endl;
   /// Detecting corners
   cornerHarris( src, dst, blockSize, apertureSize, k, BORDER_DEFAULT );
 
@@ -224,7 +224,7 @@ double cornerHarris(int viewArray[20][20], Mat src, Mat image, vector<Point> acc
   Point topLeft(1000, 1000);
   harrisLine bright;
   double brightest = 0;
-
+        cout << "2" << endl;
 
   //calculate initial harris corners  
   int count = 0;
@@ -245,7 +245,7 @@ double cornerHarris(int viewArray[20][20], Mat src, Mat image, vector<Point> acc
   }
 
 
-
+      cout << "2" << endl;
    //Make pairs of corners that are vertically alligned and are not too close or too
    //far apart to be considered edges
    for(size_t i = 0; i < harrisPoints.size(); i++){
@@ -264,7 +264,7 @@ double cornerHarris(int viewArray[20][20], Mat src, Mat image, vector<Point> acc
       }
     }
    }
-
+      cout << "2" << endl;
 
   //Find the median distance and then rule out any lines that are not close enough
   //to this distance
@@ -284,7 +284,7 @@ double cornerHarris(int viewArray[20][20], Mat src, Mat image, vector<Point> acc
 
   // finalHLines = clusterLines(finalHLines);   //DECIDED THAT THIS TOOK TOO LONG FOR NOT ENOUGH IMPROVEMENT
 
-
+      cout << "2" << endl;
 
    //calculate the average edge length
    double total = 0; 
@@ -493,30 +493,45 @@ multi_array<colorArrayCell, 3> create3dArray(int viewArrayFront[20][20], int vie
 
 
 
-int string () {
-  main filename = "pictures/perfect1.jpg";
-    Mat input = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
-    Mat harris = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
+int main() {
+    string filename1 = "pictures/perfect2.jpg";
+    string filename2 = "pictures/perfect2.jpg";
+    string filename3 = "pictures/perfect2.jpg";
+    string filename4 = "pictures/perfect2.jpg";
+    Mat input = imread(filename1, CV_LOAD_IMAGE_GRAYSCALE);
+    Mat harris1 = imread(filename1, CV_LOAD_IMAGE_GRAYSCALE);
+    Mat harris2 = imread(filename2, CV_LOAD_IMAGE_GRAYSCALE);
+    Mat harris3 = imread(filename3, CV_LOAD_IMAGE_GRAYSCALE);
+    Mat harris4 = imread(filename4, CV_LOAD_IMAGE_GRAYSCALE);
     //GaussianBlur(input, 3, input);                     //CURRENTLY DOESNT MAKE DIFFERENCE
-    Mat image = imread(filename, CV_LOAD_IMAGE_COLOR);
+    Mat image1 = imread(filename1, CV_LOAD_IMAGE_COLOR);
+    Mat image2= imread(filename2, CV_LOAD_IMAGE_COLOR);
+    Mat image3 = imread(filename3, CV_LOAD_IMAGE_COLOR);
+    Mat image4 = imread(filename4, CV_LOAD_IMAGE_COLOR);
+    /*VideoCapture cap;
+   
+    cap.open(CV_CAP_ANY);
+   
+    if (!cap.isOpened()) {
+      printf("Error: could not load a camera or video.\n");
+    }
+   
+    Mat frameIn;
+   
+    namedWindow("video", 1);
+   
+    cap >> frameIn;*/
 
-  VideoCapture cap;
- 
-  cap.open(CV_CAP_ANY);
- 
-  if (!cap.isOpened()) {
-    printf("Error: could not load a camera or video.\n");
-  }
- 
-  Mat frameIn;
- 
-  namedWindow("video", 1);
- 
-  cap >> frameIn;
-    //removeBackground (image); 
-    Mat linesImage(input.size(), image.type());
+
+
+
+    removeBackground (image1); 
+    removeBackground (image2); 
+    removeBackground (image3); 
+    removeBackground (image4); 
+    Mat linesImage(input.size(), image1.type());
     if (!input.data) {
-      cerr << "Cannot open " << filename << endl;
+      cerr << "Cannot open " << filename1 << endl;
       exit(0);
     }
   //UNUSED HOUGH CODE
@@ -524,17 +539,28 @@ int string () {
 
     vector<Point> acceptablePoint;
    // HoughStuff(image, input, acceptablePoint);
+      int viewArrayFront[20][20] = {{0}};   int viewArrayLeft[20][20] = {{0}};   int viewArrayRight[20][20] = {{0}};   int viewArrayBack[20][20] = {{0}};
+      cout << "1" << endl;
+ // initialiseTestArray(viewArrayFront, viewArrayLeft, viewArrayBack, viewArrayRight);
+  harris1 = cornerHarris(viewArrayFront, harris1, image1, acceptablePoint);
+        cout << "1" << endl;
+  harris2 = cornerHarris(viewArrayBack, harris2, image2, acceptablePoint);
+        cout << "1" << endl;
+  harris3 = cornerHarris(viewArrayRight, harris3, image3, acceptablePoint);
+        cout << "1" << endl;
+  harris4 = cornerHarris(viewArrayLeft, harris4, image4, acceptablePoint);
+      cout << "1" << endl;
 
-  // harris = cornerHarris(viewArray, harris, image, acceptablePoint);
-  int viewArrayFront[20][20] = {{0}};   int viewArrayLeft[20][20] = {{0}};   int viewArrayRight[20][20] = {{0}};   int viewArrayBack[20][20] = {{0}};
-  initialiseTestArray(viewArrayFront, viewArrayLeft, viewArrayBack, viewArrayRight);
   multi_array<colorArrayCell, 3> array3d =create3dArray(viewArrayFront, viewArrayLeft, viewArrayBack, viewArrayRight);
-
+      cout << "1" << endl;
   // int viewArray[20][20];
 
 
 
-  imshow("houghlines", image);
+  imshow("houghlines", image1);
+    imshow("houghlines2", image2);
+      imshow("houghlines3", image3);
+        imshow("houghlines4", image4);
    waitKey(0);
   return 0;
   }
