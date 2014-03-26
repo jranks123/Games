@@ -7,97 +7,75 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FB5F60F418E31BCA00855CBA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB5F60F318E31BCA00855CBA /* Cocoa.framework */; };
-		FB5F60FE18E31BCA00855CBA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FB5F60FC18E31BCA00855CBA /* InfoPlist.strings */; };
+		FB5F611218E31FE800855CBA /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB5F611118E31FE800855CBA /* main.cpp */; };
+		FB5F611418E31FE800855CBA /* makeorbreak.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = FB5F611318E31FE800855CBA /* makeorbreak.1 */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		FB5F610C18E31FE800855CBA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				FB5F611418E31FE800855CBA /* makeorbreak.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		FB5F60F018E31BCA00855CBA /* makeorbreak.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = makeorbreak.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		FB5F60F318E31BCA00855CBA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
-		FB5F60F618E31BCA00855CBA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		FB5F60F718E31BCA00855CBA /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		FB5F60F818E31BCA00855CBA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
-		FB5F60FB18E31BCA00855CBA /* makeorbreak-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "makeorbreak-Info.plist"; sourceTree = "<group>"; };
-		FB5F60FD18E31BCA00855CBA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		FB5F60FF18E31BCA00855CBA /* makeorbreak-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "makeorbreak-Prefix.pch"; sourceTree = "<group>"; };
+		FB5F610E18E31FE800855CBA /* makeorbreak */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = makeorbreak; sourceTree = BUILT_PRODUCTS_DIR; };
+		FB5F611118E31FE800855CBA /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		FB5F611318E31FE800855CBA /* makeorbreak.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = makeorbreak.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		FB5F60ED18E31BCA00855CBA /* Frameworks */ = {
+		FB5F610B18E31FE800855CBA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FB5F60F418E31BCA00855CBA /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		FB5F60E718E31BCA00855CBA = {
+		FB5F610518E31FE800855CBA = {
 			isa = PBXGroup;
 			children = (
-				FB5F60F918E31BCA00855CBA /* makeorbreak */,
-				FB5F60F218E31BCA00855CBA /* Frameworks */,
-				FB5F60F118E31BCA00855CBA /* Products */,
+				FB5F611018E31FE800855CBA /* makeorbreak */,
+				FB5F610F18E31FE800855CBA /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		FB5F60F118E31BCA00855CBA /* Products */ = {
+		FB5F610F18E31FE800855CBA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				FB5F60F018E31BCA00855CBA /* makeorbreak.bundle */,
+				FB5F610E18E31FE800855CBA /* makeorbreak */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		FB5F60F218E31BCA00855CBA /* Frameworks */ = {
+		FB5F611018E31FE800855CBA /* makeorbreak */ = {
 			isa = PBXGroup;
 			children = (
-				FB5F60F318E31BCA00855CBA /* Cocoa.framework */,
-				FB5F60F518E31BCA00855CBA /* Other Frameworks */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		FB5F60F518E31BCA00855CBA /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				FB5F60F618E31BCA00855CBA /* Foundation.framework */,
-				FB5F60F718E31BCA00855CBA /* CoreData.framework */,
-				FB5F60F818E31BCA00855CBA /* AppKit.framework */,
-			);
-			name = "Other Frameworks";
-			sourceTree = "<group>";
-		};
-		FB5F60F918E31BCA00855CBA /* makeorbreak */ = {
-			isa = PBXGroup;
-			children = (
-				FB5F60FA18E31BCA00855CBA /* Supporting Files */,
+				FB5F611118E31FE800855CBA /* main.cpp */,
+				FB5F611318E31FE800855CBA /* makeorbreak.1 */,
 			);
 			path = makeorbreak;
-			sourceTree = "<group>";
-		};
-		FB5F60FA18E31BCA00855CBA /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				FB5F60FB18E31BCA00855CBA /* makeorbreak-Info.plist */,
-				FB5F60FC18E31BCA00855CBA /* InfoPlist.strings */,
-				FB5F60FF18E31BCA00855CBA /* makeorbreak-Prefix.pch */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		FB5F60EF18E31BCA00855CBA /* makeorbreak */ = {
+		FB5F610D18E31FE800855CBA /* makeorbreak */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = FB5F610218E31BCA00855CBA /* Build configuration list for PBXNativeTarget "makeorbreak" */;
+			buildConfigurationList = FB5F611718E31FE800855CBA /* Build configuration list for PBXNativeTarget "makeorbreak" */;
 			buildPhases = (
-				FB5F60EC18E31BCA00855CBA /* Sources */,
-				FB5F60ED18E31BCA00855CBA /* Frameworks */,
-				FB5F60EE18E31BCA00855CBA /* Resources */,
+				FB5F610A18E31FE800855CBA /* Sources */,
+				FB5F610B18E31FE800855CBA /* Frameworks */,
+				FB5F610C18E31FE800855CBA /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -105,69 +83,48 @@
 			);
 			name = makeorbreak;
 			productName = makeorbreak;
-			productReference = FB5F60F018E31BCA00855CBA /* makeorbreak.bundle */;
-			productType = "com.apple.product-type.bundle";
+			productReference = FB5F610E18E31FE800855CBA /* makeorbreak */;
+			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		FB5F60E818E31BCA00855CBA /* Project object */ = {
+		FB5F610618E31FE800855CBA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Jon E Rankin";
 			};
-			buildConfigurationList = FB5F60EB18E31BCA00855CBA /* Build configuration list for PBXProject "makeorbreak" */;
+			buildConfigurationList = FB5F610918E31FE800855CBA /* Build configuration list for PBXProject "makeorbreak" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = FB5F60E718E31BCA00855CBA;
-			productRefGroup = FB5F60F118E31BCA00855CBA /* Products */;
+			mainGroup = FB5F610518E31FE800855CBA;
+			productRefGroup = FB5F610F18E31FE800855CBA /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				FB5F60EF18E31BCA00855CBA /* makeorbreak */,
+				FB5F610D18E31FE800855CBA /* makeorbreak */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXResourcesBuildPhase section */
-		FB5F60EE18E31BCA00855CBA /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				FB5F60FE18E31BCA00855CBA /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXResourcesBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
-		FB5F60EC18E31BCA00855CBA /* Sources */ = {
+		FB5F610A18E31FE800855CBA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FB5F611218E31FE800855CBA /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXVariantGroup section */
-		FB5F60FC18E31BCA00855CBA /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				FB5F60FD18E31BCA00855CBA /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin XCBuildConfiguration section */
-		FB5F610018E31BCA00855CBA /* Debug */ = {
+		FB5F611518E31FE800855CBA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -204,7 +161,7 @@
 			};
 			name = Debug;
 		};
-		FB5F610118E31BCA00855CBA /* Release */ = {
+		FB5F611618E31FE800855CBA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -235,53 +192,41 @@
 			};
 			name = Release;
 		};
-		FB5F610318E31BCA00855CBA /* Debug */ = {
+		FB5F611818E31FE800855CBA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "makeorbreak/makeorbreak-Prefix.pch";
-				INFOPLIST_FILE = "makeorbreak/makeorbreak-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = bundle;
 			};
 			name = Debug;
 		};
-		FB5F610418E31BCA00855CBA /* Release */ = {
+		FB5F611918E31FE800855CBA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "makeorbreak/makeorbreak-Prefix.pch";
-				INFOPLIST_FILE = "makeorbreak/makeorbreak-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = bundle;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		FB5F60EB18E31BCA00855CBA /* Build configuration list for PBXProject "makeorbreak" */ = {
+		FB5F610918E31FE800855CBA /* Build configuration list for PBXProject "makeorbreak" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				FB5F610018E31BCA00855CBA /* Debug */,
-				FB5F610118E31BCA00855CBA /* Release */,
+				FB5F611518E31FE800855CBA /* Debug */,
+				FB5F611618E31FE800855CBA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		FB5F610218E31BCA00855CBA /* Build configuration list for PBXNativeTarget "makeorbreak" */ = {
+		FB5F611718E31FE800855CBA /* Build configuration list for PBXNativeTarget "makeorbreak" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				FB5F610318E31BCA00855CBA /* Debug */,
-				FB5F610418E31BCA00855CBA /* Release */,
+				FB5F611818E31FE800855CBA /* Debug */,
+				FB5F611918E31FE800855CBA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = FB5F60E818E31BCA00855CBA /* Project object */;
+	rootObject = FB5F610618E31FE800855CBA /* Project object */;
 }
